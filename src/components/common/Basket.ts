@@ -1,5 +1,5 @@
 import { Component } from '../base/Component';
-import { createElement, ensureElement } from '../../utils/utils';
+import { ensureElement, createElement } from '../../utils/utils';
 import { EventEmitter } from '../base/events';
 import { IBasket } from '../../types';
 
@@ -11,9 +11,15 @@ export class Basket extends Component<IBasket> {
 	constructor(container: HTMLElement, protected events: EventEmitter) {
 		super(container);
 
-		this._list = ensureElement<HTMLElement>('.basket__list', this.container);
-		this._total = this.container.querySelector('.basket__total');
-		this._button = this.container.querySelector('.basket__action');
+		try {
+			this._list = ensureElement<HTMLElement>('.basket__list', this.container);
+		} catch (error) {
+			this._list = createElement('ul', { className: 'basket__list' });
+			this.container.appendChild(this._list);
+		}
+
+		this._total = this.container.querySelector('.basket__price');
+		this._button = this.container.querySelector('.basket__button');
 
 		if (this._button) {
 			this._button.addEventListener('click', () => {

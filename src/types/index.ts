@@ -1,7 +1,12 @@
 export interface IAppData {
 	products: IProduct[];
-	basket: string[];
+	basket: IProduct[];
 	order: IOrder | null;
+}
+
+export enum PayMethod {
+	CASH = 'cash',
+	CARD = 'card',
 }
 
 export interface IProduct {
@@ -25,7 +30,7 @@ export interface IOrder {
 	phone: string;
 	email: string;
 	address: string;
-	payment: string;
+	payment: PayMethod;
 	items: string[];
 	total: number;
 }

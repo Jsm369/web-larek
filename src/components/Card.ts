@@ -1,6 +1,6 @@
 import { Component } from './base/Component';
 import { IProduct } from '../types';
-import { ensureElement } from '../utils/utils';
+import { bem, ensureElement } from '../utils/utils';
 import { settings } from '../utils/constants';
 
 interface ICardActions {
@@ -67,7 +67,7 @@ export class Card extends Component<IProduct> {
 
 	set category(value: string) {
 		this.setText(this._category, value);
-		this._category.classList.add(settings[value]);
+		this._category.classList.add(bem('card', 'category', settings[value]).name);
 	}
 
 	get category(): string {
