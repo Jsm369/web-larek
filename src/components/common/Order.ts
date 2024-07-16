@@ -1,17 +1,35 @@
-import { IOrder } from '../../types';
+import { IOrderForm, PayMethod } from '../../types';
+import { ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
 import { Form } from './Form';
 
-export class Order extends Form<IOrder> {
+export class Order extends Form<IOrderForm> {
 	protected _payments: HTMLButtonElement[];
+	protected _paymentMethods: PayMethod = PayMethod.CARD;
+	protected _address: HTMLInputElement;
 
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
+		this._payments = Array.from(container.querySelectorAll('.button_alt'));
+
+		this._address = ensureElement<HTMLInputElement>(
+			'.form__input[name=address]',
+			this.container
+		);
+
+		console.log(this._address);
+
+		this._payments.forEach((button) => {
+			button.addEventListener('click', () => {
+				console.log(button.name);
+				const paymentMethod = button.name as PayMethod;
+				this.payment = paymentMethod;
+			});
+		});
 	}
 
 	set address(value: string) {
-		(this.container.elements.namedItem('address') as HTMLInputElement).value =
-			value;
+		this._address.value = value;
 	}
 
 	set payment(name: string) {

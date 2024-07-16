@@ -6,34 +6,44 @@ import { Page } from './components/Page';
 import { EventEmitter } from './components/base/events';
 import { Basket } from './components/common/Basket';
 import { Contacts } from './components/common/Contacts';
-import { Form } from './components/common/Form';
 import { Modal } from './components/common/Modal';
 import { Order } from './components/common/Order';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { IProduct, IOrder, IBasket } from './types';
+import { IProduct, PayMethod, TOrder } from './types';
 import { webLarekApi } from './components/webLarekApi';
 import { API_URL, CDN_URL } from './utils/constants';
+import { SuccessOrder } from './components/common/SuccessfulOrder';
 
-// Шаблоны
+// Шаблоны для рендеринга компонентов
 const cardCatalog = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreview = ensureElement<HTMLTemplateElement>('#card-preview');
-const basketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const modalTemplate = ensureElement<HTMLTemplateElement>('#modal-container');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successfulOrderTemplate = ensureElement<HTMLTemplateElement>('#success');
 //
 
 const events = new EventEmitter();
 const api = new webLarekApi(CDN_URL, API_URL);
 
-// Контейнеры
+// Инициализация контейнеров компонентов
 const modal = new Modal(modalTemplate, events);
 const page = new Page(document.body, events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 const orderForm = new Order(cloneTemplate(orderTemplate), events);
 const contactsForm = new Contacts(cloneTemplate(contactsTemplate), events);
+const success = new SuccessOrder(
+	cloneTemplate(successfulOrderTemplate),
+	events,
+	{
+		onClick: () => modal.close(),
+	}
+);
 //
 
+// бизнес логика
 api
 	.getProductList()
 	.then((products) => {
@@ -72,31 +82,124 @@ api
 					}
 				},
 			});
+			if (appData.isInBasket(item)) {
+				card.button = 'Удалить из корзины';
+			} else {
+				card.button = 'В корзину';
+			}
 
 			modal.render({ content: card.render(item) });
 		});
 
 		events.on('basket:open', () => {
-			console.log(basket.render());
 			modal.render({
 				content: basket.render(),
 			});
 		});
 
-		events.on('basket:changed', () => {
+		events.on('basket:update', () => {
 			page.counter = appData.getBasketLength();
 
 			basket.items = appData.basket.map((product) => {
-				const card = new Card(cloneTemplate(basketTemplate), {
-					onClick: () => appData.removeFromBasket(product),
+				const item = appData.products.find((item) => item.id === product.id);
+				if (!item) return;
+				const card = new Card(cloneTemplate(cardBasketTemplate), {
+					onClick: () => appData.removeFromBasket(item),
 				});
-				return card.render(product);
+
+				return card.render(item);
 			});
 
 			basket.total = appData.getTotalPrice();
 		});
 
+		events.on('order:open', () => {
+			appData.clearOrder();
+			modal.render({
+				content: orderForm.render({
+					address: '',
+					payment: PayMethod.CARD,
+					isValid: false,
+					errors: [],
+				}),
+			});
+		});
+
+		events.on(
+			/^order\..*:change$/,
+			(data: { field: keyof TOrder; value: string }) => {
+				appData.updateOrderField(data.field, data.value);
+				appData.validateOrderForm();
+			}
+		);
+
+		events.on('orderFormErrors:change', (error: Partial<TOrder>) => {
+			const { payment, address } = error;
+			const isValid = !payment && !address;
+			orderForm.valid = isValid;
+			if (!isValid) {
+				orderForm.errors = address;
+			} else {
+				orderForm.errors = '';
+			}
+		});
+
+		events.on('order:submit', () => {
+			modal.render({
+				content: contactsForm.render({
+					email: '',
+					phone: '',
+					isValid: false,
+					errors: [],
+				}),
+			});
+		});
+
+		events.on(
+			/^contacts\..*:change$/,
+			(data: { field: keyof TOrder; value: string }) => {
+				appData.updateOrderField(data.field, data.value);
+				appData.validateContactsForm();
+			}
+		);
+
+		events.on('contactsFormErrors:change', (error: Partial<TOrder>) => {
+			const { email, phone } = error;
+			const formIsValid = !email && !phone;
+			contactsForm.valid = formIsValid;
+			if (!formIsValid) {
+				contactsForm.errors = email || phone;
+			} else {
+				contactsForm.errors = '';
+			}
+		});
+
+		events.on('contacts:submit', () => {
+			const { email, phone, address, payment } = appData.order;
+			const orderData = {
+				email,
+				phone,
+				address,
+				payment,
+				items: appData.basket.map((item) => item.id),
+				total: appData.getTotalPrice(),
+			};
+
+			api
+				.postOrder(orderData)
+				.then((data) => {
+					modal.render({
+						content: success.render(),
+					});
+					success.total = data.totalPrice;
+					appData.clearBasket();
+					appData.clearOrder();
+				})
+				.catch(console.error);
+		});
+
 		appData.setProducts(products);
+		appData.loadBasketFromStorage();
 	})
 	.catch((err) => {
 		console.log(err);

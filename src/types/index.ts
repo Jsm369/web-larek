@@ -21,9 +21,6 @@ export interface IProduct {
 export interface IBasket {
 	items: IProduct[];
 	totalPrice: number;
-	addItem(item: IProduct): void;
-	removeItem(itemId: IProduct): void;
-	calculateTotalPrice(): number;
 }
 
 export interface IOrder {
@@ -33,6 +30,23 @@ export interface IOrder {
 	payment: PayMethod;
 	items: string[];
 	total: number;
+}
+
+export type TOrder = {
+	phone: string;
+	email: string;
+	address: string;
+	payment: PayMethod;
+};
+
+export interface IOrderForm {
+	address: string;
+	payment: PayMethod;
+}
+
+export interface IContactsForm {
+	phone: string;
+	email: string;
 }
 
 export interface IOrderStatus {

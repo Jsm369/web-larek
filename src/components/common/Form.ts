@@ -1,18 +1,19 @@
 import { Component } from '../base/Component';
-import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
+import { IEvents } from '../base/events';
 
-interface formState {
+interface IFormState {
 	isValid: boolean;
 	errors: string[];
 }
 
-export class Form<T> extends Component<formState> {
+export class Form<T> extends Component<IFormState> {
 	protected _submit: HTMLButtonElement;
 	protected _errors: HTMLElement;
 
 	constructor(protected container: HTMLFormElement, protected events: IEvents) {
 		super(container);
+
 		this._submit = ensureElement<HTMLButtonElement>(
 			'button[type=submit]',
 			this.container
@@ -47,9 +48,10 @@ export class Form<T> extends Component<formState> {
 		this.setText(this._errors, value);
 	}
 
-	render(state: Partial<T> & formState) {
+	render(state: Partial<T> & IFormState) {
 		const { isValid, errors, ...inputs } = state;
 		super.render({ isValid, errors });
+		console.log('Form rendered with state:', state.isValid);
 		Object.assign(this, inputs);
 		return this.container;
 	}

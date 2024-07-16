@@ -10,3 +10,9 @@ export const settings: { [key: string]: string } = {
 	дополнительное: 'additional',
 	другое: 'other',
 };
+
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const phoneRegex = /^(\+7|8)?[\d]{10}$/;
+export const addressRegex = /^(?=.*\d)(?=.*[a-zA-Zа-яА-ЯёЁ]).{6,}$/;
+
+export const BasketStorageKey = 'basket-items';

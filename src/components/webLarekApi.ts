@@ -4,7 +4,7 @@ import { Api, ApiListResponse } from './base/api';
 interface IApi {
 	getProductList: () => Promise<IProduct[]>;
 	getProductItem: (id: string) => Promise<IProduct>;
-	orderList: (order: IOrder) => Promise<IOrderStatus>;
+	postOrder: (order: IOrder) => Promise<IOrderStatus>;
 }
 
 export class webLarekApi extends Api implements IApi {
@@ -14,6 +14,7 @@ export class webLarekApi extends Api implements IApi {
 		super(baseUrl, options);
 		this.cdn = cdn;
 	}
+	orderList: (order: IOrder) => Promise<IOrderStatus>;
 
 	getProductList(): Promise<IProduct[]> {
 		return this.get('/product').then((data: ApiListResponse<IProduct>) =>
@@ -31,7 +32,7 @@ export class webLarekApi extends Api implements IApi {
 		}));
 	}
 
-	orderList(order: IOrder): Promise<IOrderStatus> {
+	postOrder(order: IOrder): Promise<IOrderStatus> {
 		return this.post('/order', order).then((data: IOrderStatus) => data);
 	}
 }
