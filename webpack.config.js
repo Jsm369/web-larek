@@ -13,6 +13,8 @@ require('dotenv').config({
 	),
 });
 
+const Dotenv = require('dotenv-webpack');
+
 const isProduction = process.env.NODE_ENV == 'production';
 
 const stylesHandler = MiniCssExtractPlugin.loader;
@@ -32,6 +34,12 @@ const config = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: 'src/pages/index.html',
+		}),
+		new Dotenv({
+			path: path.join(
+				process.cwd(),
+				process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env'
+			),
 		}),
 
 		new MiniCssExtractPlugin(),

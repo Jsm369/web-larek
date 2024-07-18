@@ -17,11 +17,8 @@ export class Order extends Form<IOrderForm> {
 			this.container
 		);
 
-		console.log(this._address);
-
 		this._payments.forEach((button) => {
 			button.addEventListener('click', () => {
-				console.log(button.name);
 				const paymentMethod = button.name as PayMethod;
 				this.payment = paymentMethod;
 			});

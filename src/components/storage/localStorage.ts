@@ -3,7 +3,6 @@ interface LocalStorageData<T> {
 	value: T;
 }
 
-// Функция для сохранения данных в localStorage
 export const saveToLocalStorage = <T>({
 	key,
 	value,
@@ -16,7 +15,6 @@ export const saveToLocalStorage = <T>({
 	}
 };
 
-// Функция для загрузки данных из localStorage
 export const loadFromLocalStorage = <T>(key: string): T | null => {
 	try {
 		const serializedValue = localStorage.getItem(key);

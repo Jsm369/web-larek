@@ -9,10 +9,10 @@ import { Contacts } from './components/common/Contacts';
 import { Modal } from './components/common/Modal';
 import { Order } from './components/common/Order';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { IProduct, PayMethod, TOrder } from './types';
-import { webLarekApi } from './components/webLarekApi';
+import { IProduct, PayMethod, IOrder } from './types';
+import { larekAPI } from './components/larekAPI';
 import { API_URL, CDN_URL } from './utils/constants';
-import { SuccessOrder } from './components/common/SuccessfulOrder';
+import { SuccessOrder } from './components/common/SuccessOrder';
 
 // Шаблоны для рендеринга компонентов
 const cardCatalog = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -22,11 +22,11 @@ const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const modalTemplate = ensureElement<HTMLTemplateElement>('#modal-container');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-const successfulOrderTemplate = ensureElement<HTMLTemplateElement>('#success');
+const successOrderTemplate = ensureElement<HTMLTemplateElement>('#success');
 //
 
 const events = new EventEmitter();
-const api = new webLarekApi(CDN_URL, API_URL);
+const api = new larekAPI(CDN_URL, API_URL);
 
 // Инициализация контейнеров компонентов
 const modal = new Modal(modalTemplate, events);
@@ -34,13 +34,9 @@ const page = new Page(document.body, events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 const orderForm = new Order(cloneTemplate(orderTemplate), events);
 const contactsForm = new Contacts(cloneTemplate(contactsTemplate), events);
-const success = new SuccessOrder(
-	cloneTemplate(successfulOrderTemplate),
-	events,
-	{
-		onClick: () => modal.close(),
-	}
-);
+const success = new SuccessOrder(cloneTemplate(successOrderTemplate), events, {
+	onClick: () => modal.close(),
+});
 //
 
 // бизнес логика
@@ -127,13 +123,13 @@ api
 
 		events.on(
 			/^order\..*:change$/,
-			(data: { field: keyof TOrder; value: string }) => {
+			(data: { field: keyof IOrder; value: string }) => {
 				appData.updateOrderField(data.field, data.value);
 				appData.validateOrderForm();
 			}
 		);
 
-		events.on('orderFormErrors:change', (error: Partial<TOrder>) => {
+		events.on('orderFormErrors:change', (error: Partial<IOrder>) => {
 			const { payment, address } = error;
 			const isValid = !payment && !address;
 			orderForm.valid = isValid;
@@ -157,13 +153,13 @@ api
 
 		events.on(
 			/^contacts\..*:change$/,
-			(data: { field: keyof TOrder; value: string }) => {
+			(data: { field: keyof IOrder; value: string }) => {
 				appData.updateOrderField(data.field, data.value);
 				appData.validateContactsForm();
 			}
 		);
 
-		events.on('contactsFormErrors:change', (error: Partial<TOrder>) => {
+		events.on('contactsFormErrors:change', (error: Partial<IOrder>) => {
 			const { email, phone } = error;
 			const formIsValid = !email && !phone;
 			contactsForm.valid = formIsValid;

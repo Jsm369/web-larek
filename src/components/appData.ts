@@ -2,7 +2,7 @@ import {
 	loadFromLocalStorage,
 	saveToLocalStorage,
 } from './storage/localStorage';
-import { IAppData, IProduct, PayMethod, TOrder } from '../types';
+import { IAppData, IProduct, PayMethod, IOrder } from '../types';
 import { Model } from './base/Model';
 import {
 	emailRegex,
@@ -15,8 +15,8 @@ export class AppData extends Model<IAppData> {
 	products: IProduct[] = [];
 	details: IProduct | null;
 	basket: IProduct[] = [];
-	order: TOrder;
-	formErrors: Partial<Record<keyof TOrder, string>>;
+	order: IOrder;
+	formErrors: Partial<Record<keyof IOrder, string>>;
 
 	loadBasketFromStorage() {
 		const storedItems = loadFromLocalStorage<IProduct[]>(BasketStorageKey);
@@ -66,7 +66,7 @@ export class AppData extends Model<IAppData> {
 		this.order.payment = paymentMethod;
 	}
 
-	updateOrderField(field: keyof TOrder, value: string | PayMethod) {
+	updateOrderField(field: keyof IOrder, value: string | PayMethod) {
 		if (field === 'payment') {
 			this.setPaymentMethod(value as PayMethod);
 		} else {

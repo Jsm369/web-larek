@@ -51,7 +51,6 @@ export class Form<T> extends Component<IFormState> {
 	render(state: Partial<T> & IFormState) {
 		const { isValid, errors, ...inputs } = state;
 		super.render({ isValid, errors });
-		console.log('Form rendered with state:', state.isValid);
 		Object.assign(this, inputs);
 		return this.container;
 	}
