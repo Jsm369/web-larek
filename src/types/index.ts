@@ -41,6 +41,6 @@ export interface IContactsForm {
 }
 
 export interface IOrderStatus {
-	status: string;
-	totalPrice: number;
+	id: string;
+	total: number;
 }

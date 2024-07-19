@@ -1,7 +1,7 @@
-import { Component } from '../base/Component';
-import { ensureElement, createElement } from '../../utils/utils';
-import { IEvents } from '../base/events';
-import { IBasket } from '../../types';
+import { Component } from './base/Component';
+import { ensureElement, createElement } from '../utils/utils';
+import { IEvents } from './base/events';
+import { IBasket } from '../types';
 
 export class Basket extends Component<IBasket> {
 	protected _list: HTMLElement;
@@ -24,10 +24,20 @@ export class Basket extends Component<IBasket> {
 		this.items = [];
 	}
 
+	updateIndex() {
+		Array.from(this._list.children).forEach((child, index) => {
+			const indexElement = child.querySelector('.basket__item-index');
+			if (indexElement) {
+				indexElement.textContent = (index + 1).toString();
+			}
+		});
+	}
+
 	set items(items: HTMLElement[]) {
 		if (items.length) {
 			this.setDisabled(this._button, false);
 			this._list.replaceChildren(...items);
+			this.updateIndex();
 		} else {
 			this.setDisabled(this._button, true);
 			this._list.replaceChildren(

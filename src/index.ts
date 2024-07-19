@@ -4,15 +4,15 @@ import { AppData } from './components/appData';
 import { Card } from './components/Card';
 import { Page } from './components/Page';
 import { EventEmitter } from './components/base/events';
-import { Basket } from './components/common/Basket';
-import { Contacts } from './components/common/Contacts';
+import { Basket } from './components/Basket';
+import { Contacts } from './components/Contacts';
 import { Modal } from './components/common/Modal';
-import { Order } from './components/common/Order';
+import { OrderForm } from './components/Order';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { IProduct, PayMethod, IOrder } from './types';
 import { larekAPI } from './components/larekAPI';
 import { API_URL, CDN_URL } from './utils/constants';
-import { SuccessOrder } from './components/common/SuccessOrder';
+import { SuccessOrder } from './components/SuccessOrder';
 
 // Шаблоны для рендеринга компонентов
 const cardCatalog = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -32,7 +32,7 @@ const api = new larekAPI(CDN_URL, API_URL);
 const modal = new Modal(modalTemplate, events);
 const page = new Page(document.body, events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
-const orderForm = new Order(cloneTemplate(orderTemplate), events);
+const orderForm = new OrderForm(cloneTemplate(orderTemplate), events);
 const contactsForm = new Contacts(cloneTemplate(contactsTemplate), events);
 const success = new SuccessOrder(cloneTemplate(successOrderTemplate), events, {
 	onClick: () => modal.close(),
@@ -98,6 +98,7 @@ api
 
 			basket.items = appData.basket.map((product) => {
 				const item = appData.products.find((item) => item.id === product.id);
+				console.log(item);
 				if (!item) return;
 				const card = new Card(cloneTemplate(cardBasketTemplate), {
 					onClick: () => appData.removeFromBasket(item),
@@ -187,7 +188,7 @@ api
 					modal.render({
 						content: success.render(),
 					});
-					success.total = data.totalPrice;
+					success.total = data.total;
 					appData.clearBasket();
 					appData.clearOrder();
 				})
