@@ -20,14 +20,14 @@
 
 ```
 npm install
-npm run serve
+npm run start
 ```
 
 или
 
 ```
 yarn
-yarn serve
+yarn start
 ```
 ## Сборка
 
