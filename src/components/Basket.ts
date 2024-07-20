@@ -25,10 +25,11 @@ export class Basket extends Component<IBasket> {
 	}
 
 	updateIndex() {
-		Array.from(this._list.children).forEach((child, index) => {
-			const indexElement = child.querySelector('.basket__item-index');
+		const items = Array.from(this._list.children);
+		items.forEach((child, index) => {
+			const indexElement = child.firstElementChild as HTMLElement;
 			if (indexElement) {
-				indexElement.textContent = (index + 1).toString();
+				this.setText(indexElement, index + 1);
 			}
 		});
 	}
